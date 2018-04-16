@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
     camera_helpers
     gpd
     basic_next_best_view
+    radioroso_gripper_control
 )
 
 add_service_files(

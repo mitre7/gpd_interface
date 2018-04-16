@@ -24,8 +24,12 @@ private:
     std::vector<Vector4d> surface;
     std::vector<Vector4d> bottom;
 
+    float direction_offset;
+
 public:
-    GraspUnknownObject(){
+    GraspUnknownObject():
+    direction_offset(0.025)
+    {
         clearVectors();
         sub = nh.subscribe("/detect_grasps/clustered_grasps", 1, &GraspUnknownObject::graspListCallback, this);
     }

@@ -1,4 +1,5 @@
 #include <gpd_interface/move_to_nbv.hpp>
+#include <pcl/io/ply_io.h>
 
 
 void MoveRobot::poiCallback(const geometry_msgs::Point msg)
@@ -11,6 +12,7 @@ void MoveRobot::poiCallback(const geometry_msgs::Point msg)
 
 void MoveRobot::viewsCallback(const geometry_msgs::PoseArray msg)
 {
+    std::cout << "CALLBACK" << std::endl;
     for (uint i = 0; i < msg.poses.size(); i++)
     {
         Vector3d temp;
@@ -134,6 +136,7 @@ bool MoveRobot::reconstructScene(uint i)
 
     pcl::io::savePCDFile("/tmp/final_pc.pcd", *final_cloud_sampled);
 
+    pcl::io::savePLYFile("/tmp/final_pc.ply", *final_cloud_sampled);
 //    cout << "Point cloud saved" << endl;
 
     grabber_.disconnect();
@@ -142,7 +145,7 @@ bool MoveRobot::reconstructScene(uint i)
 
 }
 
-
+/*
 bool MoveRobot::moveToNextBestView()
 {
     initializePointCloud();
@@ -170,6 +173,7 @@ bool MoveRobot::moveToNextBestView()
 
         for (uint i = 0; i < views.size(); i++)
         {
+	    std::cout << "VIEW:" << views[i] << std::endl;
 //            Vector3d temp = getTransform("base_link", "xtion2_rgb_optical_frame").translation();
 //            Vector3d temp(getTransform("base_link", "xtion2_rgb_optical_frame").translation().x(),getTransform("base_link", "xtion2_rgb_optical_frame").translation().y(),getTransform("base_link", "xtion2_rgb_optical_frame").translation().z());
 //            if ( abs(views[i].x() - temp.x()) < diff && abs(views[i].y() - temp.y()) < diff && abs(views[i].y() - temp.y()) < diff)
@@ -223,6 +227,81 @@ bool MoveRobot::moveToNextBestView()
     else
         return false;
 }
+*/
+
+
+bool MoveRobot::moveToNextBestView()
+{
+
+    //Eigen::Vector3d poi(0.22, -0.98, 0.752);
+
+    std::vector<Eigen::Vector3d> temp;
+    temp.push_back(Eigen::Vector3d(0.5, -0.5, 1.5));
+    temp.push_back(Eigen::Vector3d(1, -0.6, 1.7));
+    temp.push_back(Eigen::Vector3d(-0.3, -0.9, 1.7));
+
+    for(unsigned int i = 0; i < temp.size(); i++)
+    {
+       views.push_back(temp[i]);
+
+       Eigen::Vector3d unit(poi.x() - temp[i].x(), poi.y() - temp[i].y(), poi.z() - temp[i].z());
+       unit = unit / unit.norm();
+
+       Eigen::Quaterniond quat  = robot_helpers::lookAt(unit, 0*M_PI/180);
+       quaternions.push_back(quat);
+    }
+
+
+
+    initializePointCloud();
+    uint pc = 1; //counts the number of multiple camera views deployed
+
+    string arm_name = "r2";
+    RobotArm arm(arm_name);
+
+    arm.setRobotSpeed(0.6);
+
+    RobotArm::Plan plan;
+
+    
+    for (uint i = 0; i < views.size(); i++)
+    {
+	std::cout << "VIEW:" << views[i] << std::endl;
+
+        if ( !arm.planXtionIK(views[i] , quaternions[i], plan) )
+        {
+             cerr << "can't plan to location:" << views[i] << endl;
+             continue;
+        }
+        else
+        {
+            if ( arm.execute(plan) )
+            {
+                cout << "xtion at: " << getTransform("base_link", "xtion2_rgb_optical_frame").translation().adjoint() << endl;
+                 if (reconstructScene(pc))
+                 {
+                     cout << "Tray cs: " << endl << getTransform("tray_bottom", "base_link")* views[i] << endl;
+                     pc++;
+                 }
+            }
+        }
+        
+    }
+
+    callGetPointCloudService(); //only for vizualization in rviz
+
+    final_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>());
+    downsample(final_cloud_sampled, final_cloud);
+    pcl::io::savePCDFile("/tmp/final_pc.pcd", *final_cloud);
+
+    arm.moveHome();
+
+    if (pc == (number_of_views + 1))
+        return true;
+    else
+        return false;
+}
+
 
 void MoveRobot::publishFinalPointCloud()
 {

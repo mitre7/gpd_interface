@@ -1,5 +1,25 @@
 #include <gpd_interface/grasp_unknown_object.hpp>
 
+#include <radioroso_gripper_control/GripperClose.h>
+
+void closeGripperServiceCall()
+{
+    ros::NodeHandle n;
+    ros::ServiceClient close_gripper_client = n.serviceClient<radioroso_gripper_control::GripperClose>("/radioroso_gripper_control/GripperClose");
+
+    radioroso_gripper_control::GripperClose srv;
+
+    //srv.request.xd = 1100;
+
+    std::cout << "Call service" << std::endl;
+
+    if(close_gripper_client.call(srv))
+        std::cout << srv.response.resp << std::endl;
+    else
+        std::cout << "service not called" << std::endl;
+}
+
+
 void GraspUnknownObject::graspListCallback(const gpd::GraspConfigList &msg)
 {
 //    Affine3d rgb_to_base = getTransform("base_link", "xtion2_rgb_optical_frame");
@@ -62,14 +82,14 @@ void GraspUnknownObject::graspListCallback(const gpd::GraspConfigList &msg)
 
 bool GraspUnknownObject::planTipToObject()
 {
-    std::string arm_name = "r2";
+    std::string arm_name = "r1";
     RobotArm arm(arm_name);
     arm.openGripper();
 
     arm.setRobotSpeed(0.3);
 
     cout << "Move robot?" << endl;
-    cin.get();
+    //cin.get();
 
     for (uint i = 0; i < object_to_base.size(); i++)
     {
@@ -80,7 +100,7 @@ bool GraspUnknownObject::planTipToObject()
 //        cout << "[ " << q.x() << ' ' << q.y() << ' ' << q.z() << ' ' << q.w() << " ]" << endl;
 
         Vector3d new_position;
-        Vector3d approach_offset = 0.015 * approach_vector[i];
+        Vector3d approach_offset = direction_offset * approach_vector[i];
 
         new_position.x() = t[i].x() + approach_offset.x();
         new_position.y() = t[i].y() + approach_offset.y();
@@ -103,7 +123,7 @@ bool GraspUnknownObject::planTipToObject()
         }
         ros::Duration(1).sleep();
         cout << "Move down" << endl;
-        cin.get();
+        //cin.get();
 
 
         //move to the grasping position
@@ -117,10 +137,14 @@ bool GraspUnknownObject::planTipToObject()
             }
         }
         cout << "Close gripper?" << endl;
-        cin.get();
-        arm.closeGripper();
+        //cin.get();
+	closeGripperServiceCall();
+	ros::Duration(2).sleep();
+       // arm.closeGripper();
 
+	arm.moveHome();
 
+/*
         //picking up the object
         if ( !arm.planTipIK(Vector3d(new_position.x(), new_position.y(), new_position.z() + 0.5), q, plan) ) {
             cerr << "can't plan to location:" << new_position << endl;
@@ -130,7 +154,7 @@ bool GraspUnknownObject::planTipToObject()
                 cout << "tip at: " << arm.getTipPose().translation().adjoint() <<endl  ;
             }
         }
-
+*/
 
         //moving to drop position
 //        Quaterniond q_final = robot_helpers::lookAt(Vector3d(0, 0, -1), 0);
@@ -144,7 +168,7 @@ bool GraspUnknownObject::planTipToObject()
 //            }
 //        }
 //        ros::Duration(1).sleep();
-        arm.openGripper();
+        //arm.openGripper();
 
         return true;
     }
