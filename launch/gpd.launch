@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+   <include file="$(find gpd)/launch/tutorial2.launch" />
+   <node pkg="gpd" type="publish_cloud.py" name="test_grasp" output="screen" />
+<!--   <node pkg="gpd_interface" type="move_to_nbv" name="move_to_nbv" output="screen" />
+   <node pkg="gpd_interface" type="grasp_unknown_object" name="grasp_unknown_object" output="screen" />-->
+   <node pkg="gpd_interface" type="gpd_node" name="gpd_node" output="screen" />
+</launch>

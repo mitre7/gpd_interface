@@ -232,7 +232,6 @@ bool MoveRobot::moveToNextBestView()
 
 bool MoveRobot::moveToNextBestView()
 {
-
     //Eigen::Vector3d poi(0.22, -0.98, 0.752);
 
     std::vector<Eigen::Vector3d> temp;
@@ -266,8 +265,6 @@ bool MoveRobot::moveToNextBestView()
     
     for (uint i = 0; i < views.size(); i++)
     {
-	std::cout << "VIEW:" << views[i] << std::endl;
-
         if ( !arm.planXtionIK(views[i] , quaternions[i], plan) )
         {
              cerr << "can't plan to location:" << views[i] << endl;
@@ -278,23 +275,27 @@ bool MoveRobot::moveToNextBestView()
             if ( arm.execute(plan) )
             {
                 cout << "xtion at: " << getTransform("base_link", "xtion2_rgb_optical_frame").translation().adjoint() << endl;
-                 if (reconstructScene(pc))
-                 {
-                     cout << "Tray cs: " << endl << getTransform("tray_bottom", "base_link")* views[i] << endl;
+                if (reconstructScene(pc))
+                {
+                     //cout << "Tray cs: " << endl << getTransform("tray_bottom", "base_link")* views[i] << endl;
                      pc++;
-                 }
+                }
             }
         }
         
     }
 
-    callGetPointCloudService(); //only for vizualization in rviz
+    while (arm.moveHome() == false) 
+    {
+        std::cout << "Can't go the home position. Try again!" << std::endl;
+    }
+
+    //callGetPointCloudService(); //only for vizualization in rviz
 
     final_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>());
     downsample(final_cloud_sampled, final_cloud);
     pcl::io::savePCDFile("/tmp/final_pc.pcd", *final_cloud);
-
-    arm.moveHome();
+    
 
     if (pc == (number_of_views + 1))
         return true;

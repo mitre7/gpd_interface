@@ -108,8 +108,8 @@ bool GraspUnknownObject::planTipToObject()
 
         RobotArm::Plan plan;
 
-        cout << "Hand bottom: x = " << bottom[i].x() << ", y = " << bottom[i].y() << ", z = " << bottom[i].z() << endl;
-        cout << "Surface bottom: x = " << surface[i].x() << ", y = " << surface[i].y() << ", z = " << surface[i].z() << endl;
+        //cout << "Hand bottom: x = " << bottom[i].x() << ", y = " << bottom[i].y() << ", z = " << bottom[i].z() << endl;
+        //cout << "Surface bottom: x = " << surface[i].x() << ", y = " << surface[i].y() << ", z = " << surface[i].z() << endl;
 
         //approach unknown object
         if ( !arm.planTipIK(t[i].head<3>(), q, plan) ) {
@@ -136,9 +136,9 @@ bool GraspUnknownObject::planTipToObject()
                 cout << "tip at: " << arm.getTipPose().translation().adjoint() <<endl  ;
             }
         }
-        cout << "Close gripper?" << endl;
+        //cout << "Close gripper?" << endl;
         //cin.get();
-	closeGripperServiceCall();
+	//closeGripperServiceCall();
 	ros::Duration(2).sleep();
        // arm.closeGripper();
 

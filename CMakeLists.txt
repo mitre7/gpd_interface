@@ -79,5 +79,8 @@ target_link_libraries(grasp_unknown_object ${catkin_LIBRARIES})
 add_executable(test_point_cloud_merge test/test_point_cloud_merge.cpp)
 target_link_libraries(test_point_cloud_merge ${catkin_LIBRARIES})
 
+add_executable(gpd_node src/gpd_node.cpp src/move_to_nbv.cpp src/grasp_unknown_object.cpp)
+target_link_libraries(gpd_node construct_point_cloud ${catkin_LIBRARIES} ${PCL_COMMON_LIBRARIES} ${PCL_IO_LIBRARIES} ${PCL_LIBRARIES})
+
 
 

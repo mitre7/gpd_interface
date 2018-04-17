@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+   <include file="$(find clopema_launch)/launch/start_robot.launch" />
+   <include file="$(find camera_helpers)/launch/xtion2.launch" />
+   <node pkg="viz_helpers" type="dashboard" name="dashboard" output="screen" />
+</launch>

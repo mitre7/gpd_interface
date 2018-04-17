@@ -63,6 +63,7 @@ public:
     {
         azimuth = new double[number_of_views - 1];
         service_client = nh_.serviceClient<gpd_interface::getPointCloud>("/point_cloud_class/get_point_cloud");
+	//ros::service::waitForService("/point_cloud_class/get_point_cloud", -1);
         views_sub = nh_.subscribe<geometry_msgs::PoseArray>("/cameras",1,&MoveRobot::viewsCallback,this);
         poi_sub = nh_.subscribe<geometry_msgs::Point>("/basic_next_best_view/poi",1,&MoveRobot::poiCallback,this);
         cloud_msg = ros::topic::waitForMessage<sensor_msgs::PointCloud2>("/basic_next_best_view/occupancy");
