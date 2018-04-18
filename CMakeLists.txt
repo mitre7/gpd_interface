@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
     gpd
     basic_next_best_view
     radioroso_gripper_control
+    certh_pickup
 )
 
 add_service_files(
@@ -50,6 +51,7 @@ catkin_package(
 	robot_helpers
 	cvx_util
 	clopema_robot
+        certh_pickup
 )
 
 include_directories(

@@ -93,6 +93,7 @@ bool GraspUnknownObject::planTipToObject()
 
     for (uint i = 0; i < object_to_base.size(); i++)
     {
+	arm.moveHome();
         double angle = estimateAngle(object_to_base[i]);
 
         Quaterniond q;

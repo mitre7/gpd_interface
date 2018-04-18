@@ -2,4 +2,5 @@
 <launch>
    <node pkg="basic_next_best_view" type="basic_next_best_view" name="nbv_finder" output="screen" />
    <node pkg="gpd_interface" type="post_point_cloud" name="posting" output="screen" />
+   <node pkg="certh_pickup" type="pickup_service" name="pick_cloth_from_table_service" output="screen"/>
 </launch>

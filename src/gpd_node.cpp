@@ -1,6 +1,8 @@
 #include <ros/ros.h>
 #include <gpd_interface/move_to_nbv.hpp>
 #include <gpd_interface/grasp_unknown_object.hpp>
+#include <certh_pickup/PickUp.h>
+
 
 int main(int argc, char **argv)
 {
@@ -43,6 +45,18 @@ int main(int argc, char **argv)
 
     }
 
+    ros::ServiceClient pickup_client = nh.serviceClient<certh_pickup::PickUp>("/pick_cloth_from_table_service/pickup");
+
+    certh_pickup::PickUp srv;
+
+    std::cout << "Picking up clothes..." << std::endl;
+
+    if(pickup_client.call(srv))
+        std::cout << "Status:" << srv.response.status << std::endl;
+    else
+        std::cout << "service not called" << std::endl;
+
+    
     ros::waitForShutdown();
     spinner.stop();
 

@@ -26,6 +26,7 @@
 	<depend>camera_helpers</depend>
 	<depend>gpd</depend>
         <depend>basic_next_best_view</depend>
+        <depend>certh_pickup</depend>
 
 
 
