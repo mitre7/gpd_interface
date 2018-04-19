@@ -100,6 +100,16 @@ bool GraspUnknownObject::planTipToObject()
         q = robot_helpers::lookAt(Vector3d(approach_vector[i].x(), approach_vector[i].y(), approach_vector[i].z()), angle);
 //        cout << "[ " << q.x() << ' ' << q.y() << ' ' << q.z() << ' ' << q.w() << " ]" << endl;
 
+	// pre-grasp positon //
+	float offset = 0.05;
+	Vector3d initial_position;
+        Vector3d pre_grasp_offset = offset * approach_vector[i];
+
+        initial_position.x() = t[i].x() + pre_grasp_offset.x();
+        initial_position.y() = t[i].y() + pre_grasp_offset.y();
+        initial_position.z() = t[i].z() + pre_grasp_offset.z();
+
+	// grasp position //
         Vector3d new_position;
         Vector3d approach_offset = direction_offset * approach_vector[i];
 
@@ -113,7 +123,7 @@ bool GraspUnknownObject::planTipToObject()
         //cout << "Surface bottom: x = " << surface[i].x() << ", y = " << surface[i].y() << ", z = " << surface[i].z() << endl;
 
         //approach unknown object
-        if ( !arm.planTipIK(t[i].head<3>(), q, plan) ) {
+        if ( !arm.planTipIK(initial_position, q, plan) ) {
             cerr << "can't plan to location:" << t[i] << endl;
             continue;
         }

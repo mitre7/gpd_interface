@@ -50,6 +50,7 @@ int main(int argc, char **argv)
     certh_pickup::PickUp srv;
 
     std::cout << "Picking up clothes..." << std::endl;
+    srv.request.time_out = 1000;
 
     if(pickup_client.call(srv))
         std::cout << "Status:" << srv.response.status << std::endl;
